@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Music, Upload, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
+import { supabase } from "@/lib/supabaseClient"; 
+import { toast } from "@/hooks/use-toast";
 
 const DJRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,11 +19,8 @@ const DJRegistration: React.FC = () => {
     bio: "",
     djSoftware: "",
     demoLinks: "",
-    pastEvents: "",
-    pricing: "",
     travelPreference: "",
     socialMediaLinks: "",
-    personalWebsite: "",
   });
 
   const genresOptions = [
@@ -66,10 +65,84 @@ const DJRegistration: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // This is where the Supabase connection would be implemented
-    console.log('Form submitted:', formData);
-    alert('DJ Registration submitted successfully!');
+  
+    try {
+      let profilePictureUrl = null;
+  
+      // Upload profile picture if present
+      if (formData.profilePicture) {
+        const file = formData.profilePicture;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("dj_profile_pictures") // Ensure this bucket exists
+          .upload(`profiles/${file.name}`, file);
+  
+        if (uploadError) {
+          console.error("Error uploading profile picture:", uploadError.message);
+          toast({
+            title: "Upload Failed",
+            description: "Profile picture upload failed. Try again.",
+            duration: 5000,
+          });
+          return;
+        }
+  
+        // Get public URL
+        profilePictureUrl = supabase.storage
+          .from("dj_profile_pictures")
+          const { data: { publicUrl } } = supabase.storage
+            .from("dj_profile_pictures")
+            .getPublicUrl(`profiles/${file.name}`);
+          profilePictureUrl = publicUrl;
+      }
+  
+      // Insert form data into Supabase
+      const { data, error } = await supabase.from("dj").insert([
+        {
+          full_name: formData.fullName || null,
+          stage_name: formData.stageName || null,
+          profile_picture: profilePictureUrl || null, // Store URL instead of filename
+          email: formData.email || null,
+          phone_number: formData.phoneNumber || null,
+          country: formData.location?.country || null,
+          state: formData.location?.state || null,
+          city: formData.location?.city || null,
+          experience_years: formData.experienceYears || null,
+          genres: formData.genres || null,
+          bio: formData.bio || null,
+          dj_software: formData.djSoftware || null,
+          demo_links: formData.demoLinks || null,
+          travel_preference: formData.travelPreference || null,
+          social_media_links: formData.socialMediaLinks || null,
+        },
+      ]);
+  
+      if (error) {
+        console.error("Error inserting data:", error.message);
+        toast({
+          title: "Registration Failed",
+          description: "There was an issue registering your DJ profile. Please try again.",
+          duration: 5000,
+        });
+        return;
+      }
+  
+      // Success notification
+      toast({
+        title: "Registration Successful",
+        description: "Your DJ profile has been registered successfully.",
+        duration: 5000,
+      });
+  
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast({
+        title: "Unexpected Error",
+        description: "Something went wrong. Please try again.",
+        duration: 5000,
+      });
+    }
   };
+  
 
   return (
     <div className="min-h-screen hero-gradient overflow-hidden">

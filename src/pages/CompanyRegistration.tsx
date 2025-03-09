@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Building2, Mail, Phone, MapPin, Info, Calendar, DollarSign, Globe, MessageSquare } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function CompanyRegistration() {
   const [formData, setFormData] = useState<{
@@ -90,10 +91,39 @@ export default function CompanyRegistration() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Temporarily using console.log - in production you would connect to Supabase
-    console.log("Submitting company registration:", formData);
-    
+  
+    // Insert form data into Supabase
+    const { data, error } = await supabase.from("company_registrations").insert([
+      {
+        company_name: formData.companyName,
+        industry: formData.industry,
+        contact_name: formData.contactName,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.location.city,
+        country: formData.location.country,
+        description: formData.description,
+        services: formData.services,
+        event_types: formData.eventTypes,
+        event_size: formData.eventSize,
+        budget_range: formData.budgetRange,
+        communication_method: formData.communicationMethod,
+        website: formData.website,
+        social_media: formData.socialMedia,
+        special_requirements: formData.specialRequirements,
+      },
+    ]);
+  
+    if (error) {
+      console.error("Error inserting data:", error.message);
+      toast({
+        title: "Registration Failed",
+        description: "There was an issue registering your company. Please try again.",
+        duration: 5000,
+      });
+      return;
+    }
+  
     // Show success toast notification
     toast({
       title: "Registration Successful",
