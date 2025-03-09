@@ -1,0 +1,95 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 50% 3%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 45% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 45% 4%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 252 69% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 227 92% 58%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 20% 12%;
+    --muted-foreground: 240 10% 70%;
+
+    --accent: 240 20% 12%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 20% 20%;
+    --input: 240 20% 16%;
+    --ring: 252 69% 53%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 240 20% 6%;
+    --sidebar-foreground: 240 10% 80%;
+    --sidebar-primary: 252 69% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 13%;
+    --sidebar-accent-foreground: 240 10% 90%;
+    --sidebar-border: 240 15% 15%;
+    --sidebar-ring: 252 69% 53%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-primary/30 text-foreground;
+  }
+}
+
+@layer components {
+  .hero-gradient {
+    @apply bg-gradient-to-tr from-black via-[#0F0A2A] to-[#1A123E] bg-cover bg-center;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 15px rgba(93, 63, 211, 0.6), 0 0 30px rgba(93, 63, 211, 0.4);
+  }
+  
+  .glass-card {
+    @apply relative backdrop-blur-lg bg-white/5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)];
+  }
+  
+  .button-glow {
+    box-shadow: 0 0 15px rgba(93, 63, 211, 0.6), 0 0 30px rgba(93, 63, 211, 0.4);
+  }
+  
+  .company-button-glow {
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.6), 0 0 30px rgba(14, 165, 233, 0.4);
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but allow scrolling */
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera*/
+  }
+}
