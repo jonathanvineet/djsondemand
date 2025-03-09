@@ -1,7 +1,6 @@
-"use client";
-
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import React, { useState } from 'react';
+import { JSX } from 'react/jsx-runtime';
+import { supabase } from '@/lib/supabaseClient'; // Adjust the import path as necessary
 
 export default function DJRegistrationForm() {
   const [formData, setFormData] = useState<{ 
@@ -56,84 +55,22 @@ export default function DJRegistrationForm() {
     "International",
   ];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      location: {
-        ...formData.location,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
-
-  const handleGenresChange = (genre: string) => {
-    setFormData((prevState) => {
-      const genres = prevState.genres.includes(genre)
-        ? prevState.genres.filter((g) => g !== genre)
-        : [...prevState.genres, genre];
-      return { ...prevState, genres };
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFormData({ ...formData, profilePicture: e.target.files[0] });
     }
-  };  
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    // Step 1: Upload Profile Picture to Supabase Storage
-    let profilePictureUrl = null;
-  
-    if (formData.profilePicture) {
-      const fileName = `${formData.fullName}-${Date.now()}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("dj-profile-pictures") // The bucket name
-        .upload(fileName, formData.profilePicture);
-  
-      if (uploadError) {
-        console.error("Error uploading profile picture:", uploadError);
-        alert("Failed to upload profile picture. Please try again.");
-        return;
-      }
-  
-      // Construct the public URL for the uploaded file
-      profilePictureUrl = `https://jacecfkyvowsylckxojv.supabase.co/storage/v1/object/public/dj-profile-pictures/${uploadData.path}`;
-    }
-  
-    // Step 2: Insert the Form Data into the Database
-    const { data, error } = await supabase.from("djs").insert([
-      {
-        full_name: formData.fullName,
-        stage_name: formData.stageName,
-        profile_picture_url: profilePictureUrl,
-        email: formData.email,
-        phone_number: formData.phoneNumber,
-        country: formData.location.country,
-        state: formData.location.state,
-        city: formData.location.city,
-        experience_years: parseInt(formData.experienceYears),
-        primary_genres: formData.genres,
-        bio: formData.bio,
-        dj_software: formData.djSoftware,
-        demo_links: formData.demoLinks,
-        past_events: formData.pastEvents,
-        pricing_structure: formData.pricing,
-        travel_preference: formData.travelPreference,
-        social_links: formData.socialMediaLinks,
-        website: formData.personalWebsite,
-      },
-    ]);
-  
+    const { data, error } = await supabase
+      .from('dj_registrations')
+      .insert([formData]);
+
     if (error) {
       console.error("Error inserting data:", error);
       alert("There was an error submitting your registration. Please try again.");
@@ -142,7 +79,7 @@ export default function DJRegistrationForm() {
       alert("DJ Registration Submitted Successfully!");
     }
   };
-  
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
       <h1 className="text-3xl font-bold mb-6">DJ Registration Form</h1>
@@ -184,13 +121,12 @@ export default function DJRegistrationForm() {
             Upload Profile Picture
           </label>
           <input
-  type="file"
-  id="profilePicture"
-  accept="image/*"
-  onChange={handleFileChange}
-  className="mt-1 block w-full text-sm text-gray-500"
-/>
-
+            type="file"
+            id="profilePicture"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="mt-1 block w-full text-sm text-gray-500"
+          />
         </div>
 
         {/* Email */}
@@ -205,115 +141,10 @@ export default function DJRegistrationForm() {
             value={formData.email}
             onChange={handleChange}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-            required
-          />
-        </div>
-        {/* Phone Number */}
-        <div>
-          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-            required
           />
         </div>
 
-        {/* Location */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Location</label>
-          <div className="grid grid-cols-3 gap-4">
-            <input
-              type="text"
-              name="country"
-              placeholder="Country"
-              value={formData.location.country}
-              onChange={handleLocationChange}
-              className="px-4 py-2 border border-gray-300 rounded-md"
-              required
-            />
-            <input
-              type="text"
-              name="state"
-              placeholder="State"
-              value={formData.location.state}
-              onChange={handleLocationChange}
-              className="px-4 py-2 border border-gray-300 rounded-md"
-              required
-            />
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              value={formData.location.city}
-              onChange={handleLocationChange}
-              className="px-4 py-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Years of Experience */}
-        <div>
-          <label htmlFor="experienceYears" className="block text-sm font-medium text-gray-700">
-            Years of Experience
-          </label>
-          <input
-            type="number"
-            id="experienceYears"
-            name="experienceYears"
-            value={formData.experienceYears}
-            onChange={handleChange}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-            required
-          />
-        </div>
-
-        {/* Music Genres */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Primary Music Genres</label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {genresOptions.map((genre) => (
-              <label key={genre} className="flex items-center">
-                <input
-                  type="checkbox"
-                  value={genre}
-                  checked={formData.genres.includes(genre)}
-                  onChange={() => handleGenresChange(genre)}
-                  className="mr-2"
-                />
-                {genre}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Short Bio */}
-        <div>
-          <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-            Short Bio or Artist Statement
-          </label>
-          <textarea
-            id="bio"
-            name="bio"
-            value={formData.bio}
-            onChange={handleChange}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-          Submit Registration
-        </button>
+        {/* Other form fields */}
       </form>
     </main>
   );
